@@ -1,0 +1,62 @@
+name: 'deployTerraform Sample'
+run-name: 'Deploying terraform via composite action'
+on:
+  workflow_dispatch:
+
+jobs:
+########################################
+################DEV#####################
+########################################
+  sample-plan:
+    name: 'Terraform Plan'
+    runs-on: ['ubuntu-latest']
+    steps:
+      - name: Git clone the repository
+        uses: actions/checkout@v4
+###################################################
+########## TERRAFORM PLAN #########################
+###################################################
+      - name: Terraform plan MyApplication.
+        uses: ./.github/actions/terraform_custom
+        with:
+          aws-role: ${{ secrets.OIDC_ROLE }} ##YOUR OIDC ROLE
+          terraform-action: "plan -out MyApplication-${{ github.run_number }}.plan"
+          runner_token: ${{ secrets.GITHUB_TOKEN }}
+          environment_stage: ${{ vars.environment_stage }}
+          terraform_version: "1.13.3"
+###################################################
+########## UPLOAD OUTPUTS #########################
+###################################################
+      - name: Uploading terraform plan output
+        uses: actions/upload-artifact@v4.4.3
+        with:
+          name: Terraform-Plan-MyApplication-${{ github.run_number }}-${{ vars.environment_stage }}
+          path: MyApplication-${{ github.run_number }}.plan
+###################################################
+########## END PLAN ###############################
+###################################################
+  dev-apply:
+    name: 'Apply Terraform Changes for MyApplication'
+    runs-on: ['ubuntu-latest']
+    needs: ['dev-plan']
+    steps:
+      - name: Git clone the repository
+        uses: actions/checkout@v4
+###################################################
+########## DOWNLOAD OUTPUTS #######################
+###################################################
+      - uses: actions/download-artifact@v4
+        with:
+          name: Terraform-Plan-MyApplication-${{ github.run_number }}-${{ vars.environment_stage }}
+          path: MyApplication
+###################################################
+########## TERRAFORM APPLY ########################
+###################################################
+      - name: Terraform Apply MyApplication.
+        uses: ./.github/actions/composite_terraform
+        with:
+          aws-role: ${{ secrets.OIDC_DIGITALCOMMERCEPLATFORM_NONPROD }}
+          terraform-action: "apply -auto-approve MyApplication-${{ github.run_number }}.plan"
+          environment_stage: ${{ vars.environment_stage }}
+          runner_token: ${{ secrets.GITHUB_TOKEN }}
+          terraform_version: "1.13.3"
