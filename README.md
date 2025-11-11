@@ -41,7 +41,7 @@ jobs:
 | `GENERAL_NAME`      | A general identifier or service name used for tagging and grouping resources. | ✅ Yes    | `string` | —             |
 | `ECS_NAME_CODE`     | The ECS service or task definition code name.                                 | ✅ Yes    | `string` | —             |
 | `SRV_COUNT`         | Desired number of ECS service instances.                                      | ✅ Yes    | `string` | `"1"`         |
-
+<br>
 🔐 Secrets<br>
 | Name          | Description                                        | Required |
 | ------------- | -------------------------------------------------- | -------- |
