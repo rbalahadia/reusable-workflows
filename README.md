@@ -45,7 +45,8 @@ jobs:
 🔐 Secrets<br>
 | Name          | Description                                        | Required |
 | ------------- | -------------------------------------------------- | -------- |
-| `ASSUME_ROLE` | IAM role ARN to assume for deployment permissions. | ✅ Yes    |
+| `ASSUME_ROLE` | IAM role ARN to assume for deployment permissions. | ✅ Yes   |
+<br>
 🧰 Example Usage<br>
 <pre><code class="yaml">
 jobs:
@@ -79,7 +80,7 @@ jobs:
 🔐 Secrets<br>
 | Name          | Description                                      | Required |
 | ------------- | ------------------------------------------------ | -------- |
-| `ASSUME_ROLE` | IAM role ARN assumed for deployment permissions. | ✅ Yes    |
+| `ASSUME_ROLE` | IAM role ARN assumed for deployment permissions. | ✅ Yes   |
 <br>
 
 🧰 Example Usage<br>
