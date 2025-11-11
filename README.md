@@ -4,14 +4,14 @@ Github action reusable workflows
 ## autoPullRequest.yaml
 🧩 Reusable Workflow: example-repo/.github/workflows/your-workflow.yml
 - This workflow automatically creates a pull request based on your trigger. 
-📥 Inputs
+📥 Inputs <br>
 | Name                | Description                                                       | Required | Type     | Default         |
 | ------------------- | ----------------------------------------------------------------- | -------- | -------- | --------------- |
 | `SOURCE_BRANCH`     | The source branch for the pull request or merge.                  | ✅ Yes    | `string` | `N/A`          |
 | `TARGET_BRANCH`     | The target branch where changes will be merged.                   | ✅ Yes    | `string` | `N/A`          |
 | `REPOSITORY_TARGET` | The name of the target repository (e.g. `org/repo`).              | ✅ Yes    | `string` | `N/A`          |
 | `REVIEWERS`         | Comma-separated list of GitHub usernames to request as reviewers. | ❌ No     | `string` | `"user1,user2"` |
-🔐 Secrets
+🔐 Secrets <br>
 | Name           | Description                                                          | Required |
 | -------------- | -------------------------------------------------------------------- | -------- |
 | `RUNNER_TOKEN` | Token used for authenticating the workflow run or repository access. | ✅ Yes    |
