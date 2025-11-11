@@ -36,11 +36,7 @@ jobs:
             echo "target_branch=${{ inputs.TARGET_BRANCH }}" >> $GITHUB_OUTPUT
             echo "title=Automated Pull Request: ${{ inputs.SOURCE_BRANCH }} to ${{ inputs.TARGET_BRANCH }}" >> $GITHUB_OUTPUT
             echo "body=Automated pull request to promote changes from develop to qa" >> $GITHUB_OUTPUT
-      - name: Prepare git
-        run: |
-          git fetch origin ${{ inputs.SOURCE_BRANCH }}:${{ inputs.SOURCE_BRANCH }}
-          git fetch origin ${{ inputs.TARGET_BRANCH }}:${{ inputs.TARGET_BRANCH }}
-
+            
       - name: Check for changes
         id: check-changes
         run: |
