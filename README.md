@@ -67,18 +67,20 @@ jobs:
 📥 Inputs<br>
 | Name                | Description                                                   | Required | Type     | Default |
 | ------------------- | ------------------------------------------------------------- | -------- | -------- | ------- |
-| `BUCKET_NAME`       | The target S3 bucket name to deploy files to.                 | ✅ Yes    | `string` | —       |
+| `BUCKET_NAME`       | Target S3 bucket name to deploy files to.                     | ✅ Yes    | `string` | —       |
 | `AWS_REGION`        | AWS region where the bucket is hosted.                        | ✅ Yes    | `string` | —       |
 | `ENVIRONMENT_STAGE` | Environment stage identifier (e.g. `dev`, `staging`, `prod`). | ✅ Yes    | `string` | —       |
 | `ENVIRONMENT_URL`   | Base URL of the deployed environment.                         | ✅ Yes    | `string` | —       |
 | `TAG_KEY`           | Resource tag key to apply to deployed assets.                 | ✅ Yes    | `string` | —       |
 | `TAG_VALUE`         | Resource tag value to apply to deployed assets.               | ✅ Yes    | `string` | —       |
-| `DEPLOY_SCRIPT`     | The deployment script or command to execute.                  | ✅ Yes    | `string` | —       |
+| `DEPLOY_SCRIPT`     | Deployment script or command to execute.                      | ✅ Yes    | `string` | —       |
 | `DEPLOY_COMMENT`    | Optional comment or description for this deployment.          | ❌ No     | `string` | —       |
+
 🔐 Secrets<br>
 | Name          | Description                                      | Required |
 | ------------- | ------------------------------------------------ | -------- |
 | `ASSUME_ROLE` | IAM role ARN assumed for deployment permissions. | ✅ Yes    |
+
 
 🧰 Example Usage<br>
 <pre><code class="yaml">
