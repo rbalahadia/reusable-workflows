@@ -5,16 +5,21 @@ Github action reusable workflows
 🧩 Reusable Workflow: example-repo/.github/workflows/your-workflow.yml
 - This workflow automatically creates a pull request based on your trigger. 
 📥 Inputs <br>
-| Name                | Description                                                       | Required | Type     | Default         |
-| ------------------- | ----------------------------------------------------------------- | -------- | -------- | --------------- |
-| `SOURCE_BRANCH`     | The source branch for the pull request or merge.                  | ✅ Yes    | `string` | `N/A`          |
-| `TARGET_BRANCH`     | The target branch where changes will be merged.                   | ✅ Yes    | `string` | `N/A`          |
-| `REPOSITORY_TARGET` | The name of the target repository (e.g. `org/repo`).              | ✅ Yes    | `string` | `N/A`          |
+
+| Name | Description | Required | Type | Default |
+|------|--------------|-----------|--------|----------|
+| `SOURCE_BRANCH`     | The source branch for the pull request or merge.                  | ✅ Yes    | `string` | —               |
+| `TARGET_BRANCH`     | The target branch where changes will be merged.                   | ✅ Yes    | `string` | —               |
+| `REPOSITORY_TARGET` | The name of the target repository (e.g. `org/repo`).              | ✅ Yes    | `string` | —               |
 | `REVIEWERS`         | Comma-separated list of GitHub usernames to request as reviewers. | ❌ No     | `string` | `"user1,user2"` |
-🔐 Secrets <br>
-| Name           | Description                                                          | Required |
-| -------------- | -------------------------------------------------------------------- | -------- |
-| `RUNNER_TOKEN` | Token used for authenticating the workflow run or repository access. | ✅ Yes    |
+
+
+
+🔐 Secrets<br>
+| Name          | Description                                        | Required |
+| ------------- | -------------------------------------------------- | -------- |
+| `RUNNER_TOKEN` |  Token used for authenticating the workflow run or repository access. | ✅ Yes   |
+<br>
 🧰 Example Usage
 <pre><code class="yaml">
 jobs:
@@ -32,9 +37,10 @@ jobs:
 ## ecsDeployScript.yaml
 🧩 Reusable Workflow: ecsDeployScript.yaml
 - This workflow is for deploying changes to ECS Fargate.<br>
-📥 Inputs<br>
-| Name                | Description                                                                   | Required | Type     | Default       |
-| ------------------- | ----------------------------------------------------------------------------- | -------- | -------- | ------------- |
+📥 Inputs <br>
+
+| Name | Description | Required | Type | Default |
+|------|--------------|-----------|--------|----------|
 | `AWS_REGION`        | AWS region where the deployment will run.                                     | ❌ No     | `string` | `"ap-southeast-1"` |
 | `ENVIRONMENT_STAGE` | The environment stage (e.g. `dev`, `staging`, `prod`).                        | ✅ Yes    | `string` | —             |
 | `ENVIRONMENT_URL`   | The base URL of the environment.                                              | ✅ Yes    | `string` | —             |
@@ -43,6 +49,7 @@ jobs:
 | `SRV_COUNT`         | Desired number of ECS service instances.                                      | ✅ Yes    | `string` | `"1"`         |
 <br>
 🔐 Secrets<br>
+
 | Name          | Description                                        | Required |
 | ------------- | -------------------------------------------------- | -------- |
 | `ASSUME_ROLE` | IAM role ARN to assume for deployment permissions. | ✅ Yes   |
@@ -66,8 +73,9 @@ jobs:
 🧩 Reusable Workflow: ssmDeployScript.yml<br>
 - This workflow is for deploying to EC2 instances that have SSM agent installed.<br>
 📥 Inputs<br>
-| Name                | Description                                                   | Required | Type     | Default |
-| ------------------- | ------------------------------------------------------------- | -------- | -------- | ------- |
+
+| Name | Description | Required | Type | Default |
+|------|--------------|-----------|--------|----------|
 | `BUCKET_NAME`       | Target S3 bucket name to deploy files to.                     | ✅ Yes    | `string` | —       |
 | `AWS_REGION`        | AWS region where the bucket is hosted.                        | ✅ Yes    | `string` | —       |
 | `ENVIRONMENT_STAGE` | Environment stage identifier (e.g. `dev`, `staging`, `prod`). | ✅ Yes    | `string` | —       |
