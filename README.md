@@ -31,8 +31,8 @@ jobs:
 
 ## ecsDeployScript.yaml
 🧩 Reusable Workflow: ecsDeployScript.yaml
-- This workflow is for deploying changes to ECS Fargate.
-📥 Inputs
+- This workflow is for deploying changes to ECS Fargate.<br>
+📥 Inputs<br>
 | Name                | Description                                                                   | Required | Type     | Default       |
 | ------------------- | ----------------------------------------------------------------------------- | -------- | -------- | ------------- |
 | `AWS_REGION`        | AWS region where the deployment will run.                                     | ❌ No     | `string` | `"ap-southeast-1"` |
@@ -42,11 +42,11 @@ jobs:
 | `ECS_NAME_CODE`     | The ECS service or task definition code name.                                 | ✅ Yes    | `string` | —             |
 | `SRV_COUNT`         | Desired number of ECS service instances.                                      | ✅ Yes    | `string` | `"1"`         |
 
-🔐 Secrets
+🔐 Secrets<br>
 | Name          | Description                                        | Required |
 | ------------- | -------------------------------------------------- | -------- |
 | `ASSUME_ROLE` | IAM role ARN to assume for deployment permissions. | ✅ Yes    |
-🧰 Example Usage
+🧰 Example Usage<br>
 <pre><code class="yaml">
 jobs:
   deploy:
@@ -62,9 +62,9 @@ jobs:
 </code></pre>
 
 ## ssmDeployScript.yaml
-🧩 Reusable Workflow: ssmDeployScript.yml
-- This workflow is for deploying to EC2 instances that have SSM agent installed.
-📥 Inputs
+🧩 Reusable Workflow: ssmDeployScript.yml<br>
+- This workflow is for deploying to EC2 instances that have SSM agent installed.<br>
+📥 Inputs<br>
 | Name                | Description                                                   | Required | Type     | Default |
 | ------------------- | ------------------------------------------------------------- | -------- | -------- | ------- |
 | `BUCKET_NAME`       | The target S3 bucket name to deploy files to.                 | ✅ Yes    | `string` | —       |
@@ -75,12 +75,12 @@ jobs:
 | `TAG_VALUE`         | Resource tag value to apply to deployed assets.               | ✅ Yes    | `string` | —       |
 | `DEPLOY_SCRIPT`     | The deployment script or command to execute.                  | ✅ Yes    | `string` | —       |
 | `DEPLOY_COMMENT`    | Optional comment or description for this deployment.          | ❌ No     | `string` | —       |
-🔐 Secrets
+🔐 Secrets<br>
 | Name          | Description                                      | Required |
 | ------------- | ------------------------------------------------ | -------- |
 | `ASSUME_ROLE` | IAM role ARN assumed for deployment permissions. | ✅ Yes    |
 
-🧰 Example Usage
+🧰 Example Usage<br>
 <pre><code class="yaml">
 jobs:
   deploy:
