@@ -1,7 +1,7 @@
 name: 'Terraform composite github actions'
 description: 'Custom composite action for Terraform build'
 inputs:
-  deploy-plan:  # id of input
+  terraform-action:  # id of input
     description: 'apply -auto-approve | plan'
     required: true
   terraform_version:  # id of input
@@ -13,12 +13,12 @@ inputs:
 runs:
   using: "composite"
   steps:                
-    - name:  Terraform ${{ inputs.deploy-plan }}.
+    - name:  Terraform ${{ inputs.terraform-action }}.
       run: |
              curl https://releases.hashicorp.com/terraform/${{ inputs.terraform_version }}/terraform_${{ inputs.terraform_version }}_linux_amd64.zip -O -J -L
              unzip terraform_${{ inputs.terraform_version }}_linux_amd64.zip && rm terraform_${{ inputs.terraform_version }}_linux_amd64.zip
              chmod 777 -R *        
              ./terraform init
              ./terraform validate
-             ./terraform ${{ inputs.deploy-plan }}
+             ./terraform ${{ inputs.terraform-action }}
       shell: bash
