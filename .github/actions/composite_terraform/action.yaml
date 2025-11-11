@@ -7,9 +7,6 @@ inputs:
   deploy-plan:  # id of input
     description: 'apply -auto-approve | plan'
     required: true
-  runner_token:  # id of input
-    description: 'token to be used'
-    required: true
   terraform_version:  # id of input
     description: 'Terraform version to be used'
     default: "1.11.3"  

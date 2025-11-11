@@ -21,7 +21,6 @@ jobs:
         with:
           aws-role: ${{ secrets.OIDC_ROLE }} ##YOUR OIDC ROLE
           terraform-action: "plan -out MyApplication-${{ github.run_number }}.plan"
-          runner_token: ${{ secrets.GITHUB_TOKEN }}
           environment_stage: ${{ vars.environment_stage }}
           terraform_version: "1.13.3"
 ###################################################
@@ -58,5 +57,4 @@ jobs:
           aws-role: ${{ secrets.OIDC_DIGITALCOMMERCEPLATFORM_NONPROD }}
           terraform-action: "apply -auto-approve MyApplication-${{ github.run_number }}.plan"
           environment_stage: ${{ vars.environment_stage }}
-          runner_token: ${{ secrets.GITHUB_TOKEN }}
           terraform_version: "1.13.3"
