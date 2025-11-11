@@ -2,6 +2,8 @@ name: 'deployTerraform Sample'
 run-name: 'Deploying terraform via composite action'
 on:
   workflow_dispatch:
+  push: 
+    branches: [feature/*]
 
 jobs:
 ########################################
@@ -17,7 +19,7 @@ jobs:
 ########## TERRAFORM PLAN #########################
 ###################################################
       - name: Terraform plan MyApplication.
-        uses: ./.github/actions/terraform_custom
+        uses: ./.github/actions/composite_terraform
         with:
           aws-role: ${{ secrets.OIDC_ROLE }} ##YOUR OIDC ROLE
           terraform-action: "plan -out MyApplication-${{ github.run_number }}.plan"
