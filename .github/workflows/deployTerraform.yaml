@@ -48,7 +48,6 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: Terraform-Plan-MyApplication-${{ github.run_number }}-demo
-          path: MyApplication
 ###################################################
 ########## TERRAFORM APPLY ########################
 ###################################################
