@@ -1,0 +1,34 @@
+name: Sonarqube scan
+on:
+  workflow_call:
+    inputs:
+      NODE_VERSION:
+        required: true
+        type: string
+    secrets:
+      SONAR_TOKEN:
+        required: true
+      SONAR_HOST_URL:
+        required: true
+# permission can be added at job level or workflow level
+permissions:
+  id-token    : write   # This is required for requesting the JWT
+  contents    : write    # This is required for actions/checkout
+  actions     : write
+  deployments : write
+
+jobs:
+  Scanning:
+    name: SonarqubeScan
+    runs-on: ['ubuntu-latest']
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis      
+      - uses: actions/download-artifact@v4
+        with:
+          name: TestCoverage
+      - uses: sonarsource/sonarqube-scan-action@master
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}

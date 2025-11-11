@@ -1,0 +1,15 @@
+name: Testing Automate Pull request
+on:
+  workflow_dispatch:
+permissions: write-all  
+jobs:
+  createPullRequest:
+    name: Creating Pull Request
+    uses: rbalahadia/reusable-workflows/.github/workflows/autoPullRequest.yaml@main
+    with:
+      SOURCE_BRANCH: "develop"
+      TARGET_BRANCH: "qa"
+      REPOSITORY_TARGET: ${{ github.repository }}
+      REVIEWERS: "rbalahadia"
+    secrets:
+        RUNNER_TOKEN : ${{ secrets.RUNNER_TOKEN }}       

@@ -1,0 +1,78 @@
+name: Deploying via SSM
+on:
+  workflow_call:
+    inputs:
+      BUCKET_NAME:
+        required: true
+        type: string
+      AWS_REGION:
+        required: true
+        type: string
+      ENVIRONMENT_STAGE:
+        required: true
+        type: string
+      ENVIRONMENT_URL:
+        required: true
+        type: string
+      TAG_KEY:
+        required: true
+        type: string
+      TAG_VALUE:
+        required: true
+        type: string
+      DEPLOY_SCRIPT:
+        required: true
+        type: string
+      DEPLOY_COMMENT:
+        required: false
+        type: string
+    secrets:
+      ASSUME_ROLE:
+        required: true
+# permission can be added at job level or workflow level
+permissions:
+  id-token    : write   # This is required for requesting the JWT
+  contents    : write    # This is required for actions/checkout
+  actions     : write
+  deployments : write
+jobs:
+  DeployviaSSM:
+    runs-on: ['ubuntu-latest']
+    environment:
+      name: ${{ inputs.ENVIRONMENT_STAGE }}
+      url: ${{ inputs.ENVIRONMENT_URL }}   
+    steps:
+      - name: Git clone the repository
+        uses: actions/checkout@v4    
+      - name: configure aws credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.ASSUME_ROLE }}
+          role-session-name: SSMdeploysession
+          aws-region: ${{ inputs.AWS_REGION }}
+      - name:  Deploying ${{ inputs.ENVIRONMENT_STAGE }}
+        run: |
+              CommandID=$(aws ssm send-command --document-name "AWS-RunRemoteScript" --document-version "1" --targets '[{"Key":"tag:${{ inputs.TAG_KEY }}","Values":["${{ inputs.TAG_VALUE }}"]}]' --parameters '{"sourceType":["S3"],"sourceInfo":["{\"path\":\"https://s3.amazonaws.com/${{ inputs.BUCKET_NAME }}/_deploy/${{ inputs.DEPLOY_SCRIPT }}\"}"],"commandLine":["${{ inputs.DEPLOY_SCRIPT }}"],"workingDirectory":[""],"executionTimeout":["600"]}' --timeout-seconds 600 --max-concurrency "50" --max-errors "0" --region ${{ inputs.AWS_REGION }} --comment "${{ inputs.DEPLOY_COMMENT }}" --query Command.CommandId --output text 2>&1)
+              RES=$?
+              if [ $RES -ne 0 ]; then
+              echo "ERROR invoking command: $CommandID" 
+              exit $RES
+              fi
+              echo "Command launched with id $CommandID" 
+              aws --region ${{ inputs.AWS_REGION }} ssm list-command-invocations --command-id $CommandID --query "CommandInvocations[*].InstanceId" --output text
+              InstanceIDs=$(aws --region ${{ inputs.AWS_REGION }} ssm list-command-invocations --command-id $CommandID --query "CommandInvocations[*].InstanceId" --output text)
+              n_instances=$(echo $InstanceIDs | wc -w)
+              while true; do
+              finished=0
+                  for instance in $InstanceIDs; do
+                       NOW=$( date +%Y-%m-%dT%H:%M:%S%z )
+                       STATUS=$(aws --region ${{ inputs.AWS_REGION }} ssm list-command-invocations --command-id $CommandID --instance-id $instance --query "CommandInvocations[*].Status" --output text | tr '[A-Z]' '[a-z]')
+                       echo "$NOW - Instance $instance : STATUS=$STATUS"
+                         case $STATUS in
+                         pending|inprogress|delayed) : ;;
+                         *) finished=$((finished+1)) ;;
+                         esac
+                   done
+               [ $finished -ge $n_instances ] && break
+               sleep 5
+               done

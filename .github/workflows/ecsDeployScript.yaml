@@ -1,0 +1,58 @@
+name: Deploying via ECS workflow
+on:
+  workflow_call:
+    inputs:
+      AWS_REGION:
+        required: false
+        type: string
+        default: "ap-southeast-1"
+      ENVIRONMENT_STAGE:
+        required: true
+        type: string
+      ENVIRONMENT_URL:
+        required: true
+        type: string
+      GENERAL_NAME:
+        required: true
+        type: string
+      ECS_NAME_CODE:
+        required: true
+        type: string
+      SRV_COUNT:
+        required: true
+        type: string
+        default: "1"        
+    secrets:
+      ASSUME_ROLE:
+        required: true
+permissions:
+  id-token: write   # This is required for requesting the JWT
+  contents: read    # This is required for actions/checkout
+jobs:
+  deploy:
+    runs-on: ['ubuntu-latest']   
+    environment:
+      name: ${{ inputs.ENVIRONMENT_STAGE }}
+      url: ${{ inputs.ENVIRONMENT_URL }}
+    steps:
+      - name: Git clone the repository
+        uses: actions/checkout@v4
+      - name: configure aws credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.ASSUME_ROLE }}
+          role-session-name: ecsDeploySessionv2
+          aws-region: ${{ inputs.AWS_REGION }}
+      - name: Download a Build Artifact
+        uses: actions/download-artifact@v4.1.8
+        with:
+          name: TaskDefinition-${{ inputs.ENVIRONMENT_STAGE }}
+      # DEPLOY TO DEV ENVIRONMENT
+      - name:  Deploy
+        run: |
+              curr_date=$(date '+%Y.%m.%d')
+              VERSION=$GITHUB_RUN_NUMBER
+              aws ecs register-task-definition --family "${{ inputs.GENERAL_NAME }}-${{ inputs.ECS_NAME_CODE }}-task" --cli-input-json file://task-definition.json
+              TASK_REVISION=`aws ecs describe-task-definition --task-definition "${{ inputs.GENERAL_NAME }}-${{ inputs.ECS_NAME_CODE }}-task" | egrep "revision" | tr "/" " " | awk '{print $2}' | sed 's/"$//' | sed 's/,//g' | sed 's/://g'`
+              echo ${TASK_REVISION}
+              aws ecs update-service --cluster ${{ inputs.GENERAL_NAME }}-${{ inputs.ECS_NAME_CODE }}  --service "${{ inputs.GENERAL_NAME }}-${{ inputs.ECS_NAME_CODE }}-service" --task-definition "${{ inputs.GENERAL_NAME }}-${{ inputs.ECS_NAME_CODE }}-task":${TASK_REVISION} --desired-count ${{ inputs.SRV_COUNT }}

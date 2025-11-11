@@ -1,0 +1,90 @@
+name: Automated Pull Request
+on:
+  workflow_call:
+    inputs:
+      SOURCE_BRANCH:
+        required: true
+        type: string
+      TARGET_BRANCH:
+        required: true
+        type: string
+      REPOSITORY_TARGET:
+        required: true
+        type: string
+      REVIEWERS:
+        required: false
+        type: string
+        default: "user1,user2"
+    secrets:
+      RUNNER_TOKEN:
+        required: true
+permissions: write-all
+jobs:
+  create-pr:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.RUNNER_TOKEN }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 
+      - name: Set source and target branches
+        id: set-branches
+        run: |
+            echo "source_branch=${{ inputs.SOURCE_BRANCH }}" >> $GITHUB_OUTPUT
+            echo "target_branch=${{ inputs.TARGET_BRANCH }}" >> $GITHUB_OUTPUT
+            echo "title=Automated Pull Request: ${{ inputs.SOURCE_BRANCH }} to ${{ inputs.TARGET_BRANCH }}" >> $GITHUB_OUTPUT
+            echo "body=Automated pull request to promote changes from develop to qa" >> $GITHUB_OUTPUT
+      - name: Prepare git
+        run: |
+          git fetch origin ${{ inputs.SOURCE_BRANCH }}:${{ inputs.SOURCE_BRANCH }}
+          git fetch origin ${{ inputs.TARGET_BRANCH }}:${{ inputs.TARGET_BRANCH }}
+
+      - name: Check for changes
+        id: check-changes
+        run: |
+          git fetch origin ${{ steps.set-branches.outputs.source_branch }}:${{ steps.set-branches.outputs.target_branch }}
+          DIFF_COUNT=$(git rev-list --count origin/${{ steps.set-branches.outputs.target_branch }}..origin/${{ steps.set-branches.outputs.source_branch }})
+          if [ "$DIFF_COUNT" -gt 0 ]; then
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Create label if it doesn't exist
+        if: steps.check-changes.outputs.has_changes == 'true'
+        run: |
+          gh label create "pull-request-automation" --color "0E8A16" --description "Pull request created by GitHub Actions" || true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Check if PR exists
+        id: check
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          prs=$(gh pr list \
+              --repo "${{ inputs.REPOSITORY_TARGET }}" \
+              --head '${{ inputs.SOURCE_BRANCH }}' \
+              --base '${{ inputs.TARGET_BRANCH }}')
+          if [[ -z "$prs" ]]
+          then
+              echo "PR doesn't exist, creating Pull request..."
+              echo "skip=false" >> "$GITHUB_OUTPUT"
+          else 
+              echo "Exit Automated PR, PR already exist"
+              echo "skip=true" >> "$GITHUB_OUTPUT"
+          fi         
+    
+      - name: Creating Pull Request
+        if: steps.check-changes.outputs.has_changes == 'true' && steps.check.outputs.skip != 'true'
+        run: |
+          gh pr create \
+            -B ${{ inputs.TARGET_BRANCH }} \
+            -H ${{ inputs.SOURCE_BRANCH }} \
+            --title "${{ steps.set-branches.outputs.title }}" \
+            --body "${{ steps.set-branches.outputs.body }}" \
+            --label "pull-request-automation" \
+            --reviewer "${{ inputs.REVIEWERS }}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
