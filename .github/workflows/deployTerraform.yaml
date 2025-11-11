@@ -22,7 +22,7 @@ jobs:
         uses: ./.github/actions/composite_terraform
         with:
           terraform-action: "plan -out MyApplication-${{ github.run_number }}.plan"
-          environment_stage: ${{ vars.environment_stage }}
+          environment_stage: demo
           terraform_version: "1.13.3"
 ###################################################
 ########## UPLOAD OUTPUTS #########################
@@ -30,7 +30,7 @@ jobs:
       - name: Uploading terraform plan output
         uses: actions/upload-artifact@v4.4.3
         with:
-          name: Terraform-Plan-MyApplication-${{ github.run_number }}-${{ vars.environment_stage }}
+          name: Terraform-Plan-MyApplication-${{ github.run_number }}-demo
           path: MyApplication-${{ github.run_number }}.plan
 ###################################################
 ########## END PLAN ###############################
@@ -47,7 +47,7 @@ jobs:
 ###################################################
       - uses: actions/download-artifact@v4
         with:
-          name: Terraform-Plan-MyApplication-${{ github.run_number }}-${{ vars.environment_stage }}
+          name: Terraform-Plan-MyApplication-${{ github.run_number }}-demo
           path: MyApplication
 ###################################################
 ########## TERRAFORM APPLY ########################
@@ -56,5 +56,5 @@ jobs:
         uses: ./.github/actions/composite_terraform
         with:
           terraform-action: "apply -auto-approve MyApplication-${{ github.run_number }}.plan"
-          environment_stage: ${{ vars.environment_stage }}
+          environment_stage: demo
           terraform_version: "1.13.3"
