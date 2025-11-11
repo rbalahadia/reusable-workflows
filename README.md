@@ -80,7 +80,7 @@ jobs:
 | Name          | Description                                      | Required |
 | ------------- | ------------------------------------------------ | -------- |
 | `ASSUME_ROLE` | IAM role ARN assumed for deployment permissions. | ✅ Yes    |
-
+<br>
 
 🧰 Example Usage<br>
 <pre><code class="yaml">
