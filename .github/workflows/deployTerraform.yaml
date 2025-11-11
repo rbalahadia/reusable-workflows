@@ -21,7 +21,6 @@ jobs:
       - name: Terraform plan MyApplication.
         uses: ./.github/actions/composite_terraform
         with:
-          aws-role: ${{ secrets.OIDC_ROLE }} ##YOUR OIDC ROLE
           terraform-action: "plan -out MyApplication-${{ github.run_number }}.plan"
           environment_stage: ${{ vars.environment_stage }}
           terraform_version: "1.13.3"
@@ -56,7 +55,6 @@ jobs:
       - name: Terraform Apply MyApplication.
         uses: ./.github/actions/composite_terraform
         with:
-          aws-role: ${{ secrets.OIDC_DIGITALCOMMERCEPLATFORM_NONPROD }}
           terraform-action: "apply -auto-approve MyApplication-${{ github.run_number }}.plan"
           environment_stage: ${{ vars.environment_stage }}
           terraform_version: "1.13.3"

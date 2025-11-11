@@ -1,9 +1,6 @@
 name: 'Terraform composite github actions'
 description: 'Custom composite action for Terraform build'
 inputs:
-  aws-role:  # id of input
-    description: 'Role to be used'
-    required: true
   deploy-plan:  # id of input
     description: 'apply -auto-approve | plan'
     required: true
@@ -15,13 +12,7 @@ inputs:
     required: false
 runs:
   using: "composite"
-  steps:
-    - name: configure aws credentials
-      uses: aws-actions/configure-aws-credentials@v3
-      with:
-        role-to-assume: ${{ inputs.aws-role }}
-        role-session-name: terraformdeploysession
-        aws-region: "ap-southeast-1"                   
+  steps:                
     - name:  Terraform ${{ inputs.deploy-plan }}.
       run: |
              curl https://releases.hashicorp.com/terraform/${{ inputs.terraform_version }}/terraform_${{ inputs.terraform_version }}_linux_amd64.zip -O -J -L
