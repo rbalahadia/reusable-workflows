@@ -1,0 +1,45 @@
+name: Orchestrate multi-repo deploy
+run-name: Batch deployment for ${{ github.event.inputs.branch }}
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "Branch to deploy"
+        required: true
+        default: "release/0.1"
+
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install jq
+        run: sudo apt-get install jq -y
+
+      - name: Trigger downstream workflows and print links
+        env:
+          GH_TOKEN: ${{ secrets.RUNNER_TOKEN }}
+          ORG: rbalahadia
+          TARGET_BRANCH: ${{ github.event.inputs.branch }}
+          WORKFLOW_FILE: <workflow-name>.yaml
+        run: |
+          echo "🔍 Searching repositories matching <YourPattern>*..."
+          REPOS=$(gh repo list "$ORG" --limit 100 --json name -q '.[] | select(.name | test("^<YourPattern>")) | .name')
+
+
+          echo "### 🧭 Trigger Summary for ${{ github.event.inputs.branch }}" >> $GITHUB_STEP_SUMMARY
+          for REPO in $REPOS; do
+            echo "➡️ Checking $REPO for branch $TARGET_BRANCH..."
+            if gh api repos/$ORG/$REPO/branches/$TARGET_BRANCH --jq '.name' >/dev/null 2>&1; then
+              echo "✅ Branch found, triggering workflow..."
+              gh workflow run "$WORKFLOW_FILE" --repo "$ORG/$REPO" --ref "$TARGET_BRANCH"
+
+              # wait briefly for GitHub to register the run
+              sleep 5
+              RUN_URL=$(gh run list --repo "$ORG/$REPO" --branch "$TARGET_BRANCH" --workflow "$WORKFLOW_FILE" --limit 1 --json url -q '.[0].url' || echo "N/A")
+
+              echo "- [$REPO]($RUN_URL)" >> $GITHUB_STEP_SUMMARY
+              echo "🔗 $REPO: $RUN_URL"
+            else
+              echo "🚫 $REPO does not have branch $TARGET_BRANCH"
+            fi
+          done

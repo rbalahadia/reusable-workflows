@@ -1,0 +1,51 @@
+name: Orchestrate release branch creation
+run-name: Batch git branch creation for ${{ github.event.inputs.branch }}.
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "Branch to create"
+        required: true
+        default: "release/0.1"
+
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install jq
+        run: sudo apt-get install jq -y
+      - name: Git clone the repository
+        uses: actions/checkout@v4
+      - name: Trigger release branch creation
+        env:
+          GH_TOKEN: ${{ secrets.RUNNER_TOKEN }}
+          ORG: rbalahadia
+          NEW_BRANCH: ${{ github.event.inputs.branch }}
+          SOURCE_BRANCH: "source"
+        run: |
+          if [[ -z "$GH_TOKEN" ]]; then
+            echo "❌ GH_TOKEN not set. Run: export GH_TOKEN=<your PAT or gh auth token>"
+            exit 1
+          fi
+
+          echo "🚀 Creating branch '$NEW_BRANCH' from '$SOURCE_BRANCH' in repos from repositories.json..."
+
+          # loop through repositories
+          for REPO in $(jq -r '.[]' repositories.json); do
+            echo "➡️ Processing $REPO..."
+
+            # get the SHA of the source branch
+            SHA=$(gh api repos/$ORG/$REPO/git/ref/heads/$SOURCE_BRANCH --jq '.object.sha' 2>/dev/null || true)
+
+            if [[ -z "$SHA" ]]; then
+              echo "⚠️ Source branch '$SOURCE_BRANCH' not found in $REPO — skipping."
+              continue
+            fi
+
+            # create the new branch ref
+            gh api repos/$ORG/$REPO/git/refs \
+              -f ref="refs/heads/$NEW_BRANCH" \
+              -f sha="$SHA" \
+              >/dev/null && echo "✅ Created branch $NEW_BRANCH in $REPO" || echo "⚠️ Failed to create $NEW_BRANCH in $REPO"
+          done
+          echo "🎉 Done!"
